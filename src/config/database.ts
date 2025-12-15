@@ -1,12 +1,22 @@
 import { Sequelize } from 'sequelize-typescript';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 import config from './config.js';
-import { DietaryPreferenceTable } from '../models/dietaryPreference.model.js';
+import { UserTable } from "../models/user.model";
+import { CartItemTable } from "../models/cartItem.model";
+import { ItemTable } from "../models/item.model";
+import { TagTable } from "../models/tag.model";
+import { PersonalInfoTable } from "../models/personalInfo.model";
+import { ActivityLevelTable } from "../models/activityLevel.model";
+import { HealthGoalTable } from "../models/healthGoal.model";
+import { DietaryPreferenceTable } from "../models/dietaryPreference.model";
+import { RecipeTable } from "../models/recipe.model";
+import { InstructionTable } from "../models/instruction.model";
+import { IngredientTable } from "../models/ingredient.model";
+import { RecipeIngredientTable } from "../models/recipeIngredient.model";
+import { RefreshTokenTable } from "../models/refreshToken.model";
+import { ItemTagTable } from "../models/itemTag.model";
+import { ReviewTable } from "../models/review.model";
+import { FollowTable } from "../models/follow.model";
 
-// Get __dirname equivalent for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // Create Sequelize instance with Supabase connection
 const sequelize = new Sequelize(config.database_url, {
@@ -24,7 +34,22 @@ const sequelize = new Sequelize(config.database_url, {
     acquire: 30000,
     idle: 10000,
   },
-  models: [DietaryPreferenceTable], // Import models directly
+  models: [UserTable,
+    CartItemTable,
+    ItemTable,
+    TagTable,
+    ItemTagTable,
+    PersonalInfoTable,
+    ActivityLevelTable,
+    HealthGoalTable,
+    DietaryPreferenceTable,
+    RecipeTable,
+    InstructionTable,
+    IngredientTable,
+    RecipeIngredientTable,
+    RefreshTokenTable,
+    ReviewTable,
+    FollowTable,], // Import models directly
 });
 
 export const connectDatabase = async (): Promise<void> => {

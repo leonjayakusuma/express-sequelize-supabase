@@ -1,13 +1,9 @@
-import express, { NextFunction, Request, Response } from 'express'
+import express, { Request, Response } from 'express'
 import cors from 'cors'
 import userRoutes from './routes/userRoutes'
-import config from './config/config'
 import { errorHandler } from './middlewares/errorHandler'
 
 const app = express()
-const port = config.port
-const nodeEnv = config.nodeEnv
-
 // Middleware
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
