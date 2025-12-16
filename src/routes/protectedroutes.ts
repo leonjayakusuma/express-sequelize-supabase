@@ -19,7 +19,7 @@ import {
     isFollowing,
     checkOldPswd,
     clearCart,
-} from "@/controllers/User";
+} from "../controllers/User";
 import { createReview, deleteReview, editReview } from "../controllers/Item";
 import {
     validatePositiveInt,
@@ -27,7 +27,7 @@ import {
     validateString,
     validatePositiveFloat,
     validateBoolean,
-} from "../validators";
+} from "../config/validators";
 import { query } from "express-validator";
 
 export const protectedRouter = express.Router();

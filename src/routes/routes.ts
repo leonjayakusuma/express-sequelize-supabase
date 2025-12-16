@@ -7,7 +7,7 @@ import {
     forgotPswd,
     getUserPageInfo,
     emailAndNameExists,
-} from "@/controllers/User";
+} from "../controllers/User";
 import {
     getSpecialItems,
     getItemReviews,
@@ -19,7 +19,7 @@ import {
     validateEmail,
     validatePositiveInt,
     validateString,
-} from "@/validators";
+} from "../config/validators";
 import { query } from "express-validator";
 
 export const router = express.Router();

@@ -512,7 +512,7 @@ export async function addDummyReviews() {
                     loopLogCount++;
                 }
 
-                const created = await ReviewTable.create(reviewData);
+                await ReviewTable.create(reviewData);
                 createdReviews++;
 
                 if (createdReviews >= maxReviews) {

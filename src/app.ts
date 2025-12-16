@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express'
 import cors from 'cors'
-import userRoutes from './routes/userRoutes'
+import { router } from './routes/routes'
+import { protectedRouter } from './routes/protectedroutes'
 import { errorHandler } from './middlewares/errorHandler'
 
 const app = express()
@@ -9,8 +10,11 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cors())
 
-// Routes
-app.use('/api/users', userRoutes)
+// Public Routes
+app.use('/api', router)
+
+// Protected Routes (require authentication)
+app.use('/api/protected', protectedRouter)
 
 app.get('/', (_req: Request, res: Response) => {
   res.json({ message: 'Hello World!' })

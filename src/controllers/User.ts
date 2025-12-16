@@ -1,13 +1,13 @@
-import { UserTable } from "@/database/models/user.model";
-import { RefreshTokenTable } from "@/database/models/refreshToken.model";
+import { UserTable } from "../models/user.model";
+import { RefreshTokenTable } from "../models/refreshToken.model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { CartItemTable } from "@/database/models/cartItem.model";
-import { PersonalInfoTable } from "@/database/models/personalInfo.model";
-import { ItemTable } from "@/database/models/item.model";
-import { ReviewTable } from "@/database/models/review.model";
-import { FollowTable } from "@/database/models/follow.model";
+import { CartItemTable } from "../models/cartItem.model";
+import { PersonalInfoTable } from "../models/personalInfo.model";
+import { ItemTable } from "../models/item.model";
+import { ReviewTable } from "../models/review.model";
+import { FollowTable } from "../models/follow.model";
 import { tryCatchHandler, HttpError } from ".";
 import {
     PublicUserInfo,
@@ -17,8 +17,8 @@ import {
     CartItem,
     UserPageInfo,
     UserReview,
-} from "@shared/types";
-import { getPswdValidities } from "@shared/utils";
+} from "../shared/types";
+import { getPswdValidities } from "../shared/utils";
 
 // export type UserInfo = {
 //     name: string;
@@ -157,8 +157,8 @@ export const logInUser = tryCatchHandler<{ id: number; name: string } & Tokens>(
         const { email, password }: { email: string; password: string } =
             req.body;
 
-        const user = await UserTable.findOne({ where: { email } });
-        const isMatch = await bcrypt.compare(password, user?.pswdHash ?? "");
+        const user = await UserTable.findOne({ where: { email }});
+        const isMatch = await bcrypt.compare(password, user?.dataValues.pswdHash ?? "");
        
 
         if (!isMatch || !user) {
@@ -437,6 +437,8 @@ export const getUserPageInfo = tryCatchHandler<UserPageInfo>(
             where: { userId },
             include: [{ model: ItemTable, attributes: ["id", "title"] }],
         });
+
+        console.log("reviewsFromDb", reviewsFromDb);
 
         const userReviews: UserReview[] = reviewsFromDb.map((review) => ({
             reviewId: review.id,
@@ -785,9 +787,9 @@ export const updatePersonalInfo = tryCatchHandler(
                 weightGainPerWeek,
                 height,
                 bodyFatPerc,
-                activityLevelName: activityLevel,
-                healthGoalName: healthGoal,
-                dietaryPreferenceName: dietaryPreference,
+                activityLevelName: activityLevel as "low" | "med" | "high",
+                healthGoalName: healthGoal as "weight loss" | "health improvements" | "muscle gain",
+                dietaryPreferenceName: dietaryPreference as "any" | "vegetarian" | "vegan",
             });
             return { msg: "Personal info created successfully." };
         } else {
@@ -800,9 +802,9 @@ export const updatePersonalInfo = tryCatchHandler(
                     weightGainPerWeek,
                     height,
                     bodyFatPerc,
-                    activityLevelName: activityLevel,
-                    healthGoalName: healthGoal,
-                    dietaryPreferenceName: dietaryPreference,
+                    activityLevelName: activityLevel as "low" | "med" | "high",
+                    healthGoalName: healthGoal as "weight loss" | "health improvements" | "muscle gain",
+                    dietaryPreferenceName: dietaryPreference as "any" | "vegetarian" | "vegan",
                 },
                 { where: { userId } },
             );
