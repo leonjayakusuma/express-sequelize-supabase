@@ -29,6 +29,7 @@ import { FollowTable } from "../models/follow.model";
 // Create Sequelize instance with Supabase connection
 const sequelize = new Sequelize(config.database_url, {
   dialect: 'postgres',
+  dialectModule: require('pg'),
   dialectOptions: {
     ssl: {
       require: true,
