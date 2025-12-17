@@ -57,11 +57,13 @@ export const connectDatabase = async (): Promise<void> => {
     await sequelize.authenticate();
     console.log('✅ Database connected successfully');
     
-    // Sync models to database (creates tables if they don't exist)
-    // Use { force: true } to drop and recreate tables (DANGEROUS - deletes data!)
-    // Use { alter: true } to alter tables to match models (can be risky)
-    await sequelize.sync({ alter: false }); // Set to true to update existing tables
-    console.log('✅ Database models synced');
+    // Skip sync in production/serverless (expensive operation)
+    // Tables should already exist in production
+    const shouldSync = process.env.SYNC_DB === 'true' || config.nodeEnv === 'development';
+    if (shouldSync) {
+      await sequelize.sync({ alter: false });
+      console.log('✅ Database models synced');
+    }
   } catch (error) {
     console.error('❌ Unable to connect to the database:', error);
     throw error;
