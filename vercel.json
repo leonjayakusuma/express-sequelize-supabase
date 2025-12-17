@@ -1,11 +1,15 @@
 {
-    "functions": {
-      "api/index.ts": {
-        "memory": 1024,
-        "maxDuration": 60
-      }
-    },
-    "routes": [
-      { "src": "/(.*)", "dest": "/api/index.ts" }
-    ]
-  }
+  "functions": {
+    "api/index.ts": {
+      "memory": 1024,
+      "maxDuration": 60,
+      "includeFiles": [
+        "node_modules/pg/**",
+        "node_modules/pg-hstore/**"
+      ]
+    }
+  },
+  "routes": [
+    { "src": "/(.*)", "dest": "/api/index.ts" }
+  ]
+}
