@@ -24,12 +24,12 @@ import { RefreshTokenTable } from "../models/refreshToken.model";
 import { ItemTagTable } from "../models/itemTag.model";
 import { ReviewTable } from "../models/review.model";
 import { FollowTable } from "../models/follow.model";
-
+import pg from 'pg';
 
 // Create Sequelize instance with Supabase connection
 const sequelize = new Sequelize(config.database_url, {
   dialect: 'postgres',
-  dialectModule: require('pg'),
+  dialectModule: pg,
   dialectOptions: {
     ssl: {
       require: true,
