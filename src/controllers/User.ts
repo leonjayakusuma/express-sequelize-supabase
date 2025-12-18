@@ -426,12 +426,15 @@ export const getProfileInfo = tryCatchHandler<ProfileInfo>(
 
 export const getUserPageInfo = tryCatchHandler<UserPageInfo>(
     async (req) => {
+        console.log('getUserPageInfo called, query:', req.query.userId);   // <— add here
         const userId: number = req.query.userId as unknown as number; // Because the middleware already takes care of this
-
+        // console.log(userId);
         const user = await UserTable.findOne({
             where: { id: userId },
             attributes: ["id", "name", "dateJoined"],
         });
+
+        // console.log(user);
 
         if (!user) {
             throw new Error();
@@ -442,17 +445,24 @@ export const getUserPageInfo = tryCatchHandler<UserPageInfo>(
             include: [{ model: ItemTable, attributes: ["id", "title"] }],
         });
 
-        console.log("reviewsFromDb", reviewsFromDb);
+        // Some legacy rows may reference an itemId that no longer exists.
+        // In that case, `review.item` will be undefined; we guard against it
+        // instead of throwing a TypeError on `review.item.title`.
+        const userReviews: UserReview[] = reviewsFromDb
+            .filter((review) => review.item) // drop reviews with missing items
+            .map((review) => ({
+                reviewId: review.id,
+                itemId: review.itemId,
+                itemName: review.item!.title, // safe because of filter above
+                rating: review.rating,
+                reviewTxt: review.isDeleted ? "" : review.reviewTxt,
+                dateCreated: review.dateCreated
+                    ? review.dateCreated.toISOString()
+                    : "",
+                isDeleted: review.isDeleted,
+            }));
 
-        const userReviews: UserReview[] = reviewsFromDb.map((review) => ({
-            reviewId: review.id,
-            itemId: review.itemId,
-            itemName: review.item.title,
-            rating: review.rating,
-            reviewTxt: review.isDeleted ? "" : review.reviewTxt,
-            dateCreated: review.dateCreated.toISOString(),
-            isDeleted: review.isDeleted,
-        }));
+        // console.log("userReviews:", userReviews)
 
         const numReviews = userReviews.length;
         const meanRating =
@@ -472,7 +482,9 @@ export const getUserPageInfo = tryCatchHandler<UserPageInfo>(
             data: {
                 id: user.id,
                 name: user.name,
-                dateJoined: user.dateJoined.toISOString(),
+                dateJoined: user.dateJoined
+                    ? user.dateJoined.toISOString()
+                    : "",
                 reviews: userReviews,
                 numReviews,
                 meanRating,
