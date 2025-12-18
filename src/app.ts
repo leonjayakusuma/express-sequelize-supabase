@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express'
 import cors from 'cors'
 import { router } from './routes/routes'
 import { protectedRouter } from './routes/protectedroutes'
+import docsRouter from './routes/docs'
 import { errorHandler } from './middlewares/errorHandler'
 import config from './config/config'
 
@@ -51,10 +52,52 @@ const apiAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
 };
 
 // Public Routes (no API key required)
+/**
+ * @openapi
+ * /:
+ *   get:
+ *     summary: Root endpoint
+ *     description: Simple health check / welcome message.
+ *     responses:
+ *       200:
+ *         description: Returns a hello world message.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Hello World!
+ */
 app.get('/', (_req: Request, res: Response) => {
   res.json({ message: 'Hello World!' })
 })
 
+/**
+ * @openapi
+ * /health:
+ *   get:
+ *     summary: Health check
+ *     description: Returns basic health and runtime information for the server.
+ *     responses:
+ *       200:
+ *         description: Server is healthy.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 uptime:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ */
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ 
     status: "OK",
@@ -65,6 +108,9 @@ app.get('/health', (_req: Request, res: Response) => {
     message: 'Server is running and healthy' 
   })
 })
+
+// Swagger / API docs routes (public, read-only)
+app.use('/api-docs', docsRouter)
 
 // Protected Routes (API key required)
 app.use('/api', apiAuthMiddleware, router)
