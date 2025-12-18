@@ -1,4 +1,6 @@
 import swaggerJsdoc from 'swagger-jsdoc'
+import path from 'path'
+import fs from 'fs'
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -30,9 +32,30 @@ const swaggerDefinition = {
   ],
 }
 
+// Build API file globs that work in both local dev (src/*.ts)
+// and Vercel/serverless build (dist/*.js)
+const root = process.cwd()
+
+const candidateGlobs = [
+  // TS sources (local dev)
+  path.join(root, 'src/app.ts'),
+  path.join(root, 'src/routes/*.ts'),
+  path.join(root, 'src/controllers/*.ts'),
+  // Compiled JS (production / Vercel)
+  path.join(root, 'dist/app.js'),
+  path.join(root, 'dist/routes/*.js'),
+  path.join(root, 'dist/controllers/*.js'),
+]
+
+// Filter to only include globs whose base directory exists
+const apiFileGlobs = candidateGlobs.filter((pattern) => {
+  const dir = pattern.replace(/\\/g, '/').split('/').slice(0, -1).join('/')
+  return fs.existsSync(dir)
+})
+
 export const swaggerOptions: swaggerJsdoc.Options = {
   swaggerDefinition,
-  apis: ['src/app.ts', 'src/routes/*.ts', 'src/controllers/*.ts'],
+  apis: apiFileGlobs,
 }
 
 export const swaggerSpec = swaggerJsdoc(swaggerOptions)
