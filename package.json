@@ -1,7 +1,7 @@
 {
-  "name": "express-supabase-prisma",
+  "name": "SoilBackend",
   "version": "1.0.0",
-  "description": "Express TS Prisma Supabase API",
+  "description": "Soil Backend API",
   "license": "ISC",
   "author": "",
   "type": "commonjs",
