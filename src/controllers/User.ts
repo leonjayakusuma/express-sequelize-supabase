@@ -675,16 +675,16 @@ export const getPersonalInfo = tryCatchHandler<PersonalInfo | undefined>(
             msg: "Personal info found.",
             data: personalInfo
                 ? {
-                      sex: personalInfo.isMale ? "male" : "female",
-                      age: personalInfo.age,
-                      weight: personalInfo.weight,
-                      weightGoal: personalInfo.weightGoal,
-                      weightGainPerWeek: personalInfo.weightGainPerWeek,
-                      height: personalInfo.height,
-                      bodyFatPerc: personalInfo.bodyFatPerc,
-                      activityLevel: personalInfo.activityLevelName,
-                      healthGoal: personalInfo.healthGoalName,
-                      dietaryPreference: personalInfo.dietaryPreferenceName,
+                      sex: personalInfo.dataValues.isMale ? "male" : "female",
+                      age: personalInfo.dataValues.age,
+                      weight: personalInfo.dataValues.weight,
+                      weightGoal: personalInfo.dataValues.weightGoal,
+                      weightGainPerWeek: personalInfo.dataValues.weightGainPerWeek,
+                      height: personalInfo.dataValues.height,
+                      bodyFatPerc: personalInfo.dataValues.bodyFatPerc,
+                      activityLevel: personalInfo.dataValues.activityLevelName,
+                      healthGoal: personalInfo.dataValues.healthGoalName,
+                      dietaryPreference: personalInfo.dataValues.dietaryPreferenceName,
                   }
                 : defaultPersonalInfo,
         }; // TODO: make sure the db names are correct

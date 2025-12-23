@@ -27,6 +27,7 @@ import {
     validateString,
     validatePositiveFloat,
     validateBoolean,
+    validateAccessToken,
 } from "../config/validators";
 import { query } from "express-validator";
 
@@ -319,7 +320,7 @@ protectedRouter.post(
  */
 protectedRouter.post(
     "/updatePersonalInfo",
-    validateString("accessToken"),
+    validateAccessToken("accessToken"),
     validateBoolean("isMale"),
     validatePositiveInt("age"),
     validatePositiveFloat("weight"),

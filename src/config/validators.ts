@@ -100,3 +100,47 @@ export function validateBoolean(
         },
     ];
 }
+
+// Validator for access tokens - validates but does NOT sanitize to preserve JWT integrity
+export function validateAccessToken(
+    paramName: string = "accessToken",
+    validator: (field: string) => ValidationChain = body,
+): Array<
+    | ValidationChain
+    | ((req: Request, res: Response, next: NextFunction) => void | Response)
+> {
+    return [
+        validator(paramName)
+            .notEmpty()
+            .withMessage("Access token is required")
+            .custom((value) => {
+                // Accept any value that can be converted to a non-empty string
+                // This handles form-urlencoded data which comes as strings
+                if (value === null || value === undefined) {
+                    throw new Error("Access token is required");
+                }
+                const token = String(value).trim();
+                if (token.length === 0) {
+                    throw new Error("Access token cannot be empty");
+                }
+                return true;
+            }),
+        (req: Request, res: Response, next: NextFunction): void | Response => {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                console.log("Access token validation errors:", JSON.stringify(errors.array(), null, 2));
+                console.log("Request body keys:", Object.keys(req.body || {}));
+                console.log("Request body accessToken exists:", paramName in (req.body || {}));
+                console.log("Request body accessToken type:", typeof req.body?.[paramName]);
+                console.log("Request body accessToken value (first 20 chars):", 
+                    req.body?.[paramName] ? String(req.body[paramName]).substring(0, 20) : "undefined");
+                return res.status(403).json({ msg: "Invalid access token" });
+            }
+            // Ensure it's a string (form-urlencoded should already be string, but just in case)
+            if (req.body && req.body[paramName] !== undefined) {
+                req.body[paramName] = String(req.body[paramName]);
+            }
+            next();
+        },
+    ];
+}
