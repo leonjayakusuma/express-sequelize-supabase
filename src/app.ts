@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: true }))
 
 // CORS middleware - handle all CORS headers manually for better control
 // This MUST be before any routes to ensure headers are set on all responses
-app.use((req: Request, res: Response, next: NextFunction): void => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   const origin = req.headers.origin;
   
   // Set CORS headers - always allow the requesting origin
@@ -31,7 +31,8 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
   
   // Handle OPTIONS requests (CORS preflight) - must return early
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    res.status(200).end();
+    return;
   }
   
   next();
