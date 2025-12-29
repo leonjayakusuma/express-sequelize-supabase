@@ -4,9 +4,9 @@ import fs from 'fs'
 
 // Determine the base URL dynamically based on environment
 const getBaseUrl = (): string => {
-  // Vercel provides VERCEL_URL automatically
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+  // Use soil-backend-77 in production
+  if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+    return 'https://soil-backend-77.vercel.app';
   }
   // Allow custom API_URL to be set
   if (process.env.API_URL) {
