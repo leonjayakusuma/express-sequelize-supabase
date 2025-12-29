@@ -43,26 +43,41 @@ const corsOptions: cors.CorsOptions = {
   optionsSuccessStatus: 200, // Some legacy browsers (IE11) choke on 204
 };
 
+// Apply CORS middleware
 app.use(cors(corsOptions))
 
-// Handle OPTIONS requests (CORS preflight) as middleware before routes
-// This ensures preflight requests get proper CORS headers
+// Additional CORS headers middleware to ensure headers are always set
+// This is a backup in case the cors() middleware doesn't catch everything
 app.use((req: Request, res: Response, next: NextFunction): void => {
-  if (req.method === 'OPTIONS') {
-    const origin = req.headers.origin;
+  const origin = req.headers.origin;
+  
+  // Set CORS headers on all responses
+  if (origin) {
+    // Check if origin should be allowed
+    const isAllowed = 
+      origin.includes('localhost') || 
+      origin.includes('127.0.0.1') || 
+      origin.includes('.vercel.app') || 
+      origin.includes('vercel.app');
     
-    // Set CORS headers
-    if (origin) {
+    if (isAllowed) {
       res.setHeader('Access-Control-Allow-Origin', origin);
     }
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key, X-Requested-With');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
-    
+  }
+  // Note: When credentials: true, we can't use '*' for origin
+  // If no origin, the cors() middleware will handle it
+  
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key, X-Requested-With');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+  
+  // Handle OPTIONS requests (CORS preflight)
+  if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
+  
   next();
 })
 
