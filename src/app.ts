@@ -47,7 +47,7 @@ app.use(cors(corsOptions))
 
 // Handle OPTIONS requests (CORS preflight) as middleware before routes
 // This ensures preflight requests get proper CORS headers
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, res: Response, next: NextFunction): void => {
   if (req.method === 'OPTIONS') {
     const origin = req.headers.origin;
     
@@ -60,7 +60,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
     
-    return res.status(200).end();
+    res.status(200).end();
+    return;
   }
   next();
 })
