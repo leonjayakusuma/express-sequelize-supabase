@@ -45,21 +45,24 @@ const corsOptions: cors.CorsOptions = {
 
 app.use(cors(corsOptions))
 
-// Explicitly handle OPTIONS requests for all routes (CORS preflight)
+// Handle OPTIONS requests (CORS preflight) as middleware before routes
 // This ensures preflight requests get proper CORS headers
-app.options('*', (req: Request, res: Response) => {
-  const origin = req.headers.origin;
-  
-  // Set CORS headers
-  if (origin) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.method === 'OPTIONS') {
+    const origin = req.headers.origin;
+    
+    // Set CORS headers
+    if (origin) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key, X-Requested-With');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+    
+    return res.status(200).end();
   }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key, X-Requested-With');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
-  
-  res.status(200).end();
+  next();
 })
 
 // API key auth middleware (to be used only on protected route groups, e.g. `/api`)
