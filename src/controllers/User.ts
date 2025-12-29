@@ -838,44 +838,39 @@ export const updatePersonalInfo = tryCatchHandler(
             throw new HttpError("Invalid personal info.", 403);
         }
 
-        // If the user doesn't exist create it
-        const personalInfo = await PersonalInfoTable.findOne({
+        // Prepare update data
+        const updateData = {
+            isMale,
+            age,
+            weight,
+            weightGoal,
+            weightGainPerWeek,
+            height,
+            bodyFatPerc,
+            activityLevelName: activityLevel as "low" | "med" | "high",
+            healthGoalName: healthGoal as "weight loss" | "health improvements" | "muscle gain",
+            dietaryPreferenceName: dietaryPreference as "any" | "vegetarian" | "vegan",
+        };
+
+        // Use findOrCreate to insert or update in a single optimized operation
+        const [personalInfo, created] = await PersonalInfoTable.findOrCreate({
             where: { userId },
-        });
-        if (!personalInfo) {
-            await PersonalInfoTable.create({
+            defaults: {
                 userId,
-                isMale,
-                age,
-                weight,
-                weightGoal,
-                weightGainPerWeek,
-                height,
-                bodyFatPerc,
-                activityLevelName: activityLevel as "low" | "med" | "high",
-                healthGoalName: healthGoal as "weight loss" | "health improvements" | "muscle gain",
-                dietaryPreferenceName: dietaryPreference as "any" | "vegetarian" | "vegan",
-            });
-            return { msg: "Personal info created successfully." };
-        } else {
-            await PersonalInfoTable.update(
-                {
-                    isMale,
-                    age,
-                    weight,
-                    weightGoal,
-                    weightGainPerWeek,
-                    height,
-                    bodyFatPerc,
-                    activityLevelName: activityLevel as "low" | "med" | "high",
-                    healthGoalName: healthGoal as "weight loss" | "health improvements" | "muscle gain",
-                    dietaryPreferenceName: dietaryPreference as "any" | "vegetarian" | "vegan",
-                },
-                { where: { userId } },
-            );
+                ...updateData,
+            },
+        });
+
+        // If it already existed, update it
+        if (!created) {
+            await personalInfo.update(updateData);
         }
 
-        return { msg: "Personal info updated successfully." };
+        return { 
+            msg: created 
+                ? "Personal info created successfully." 
+                : "Personal info updated successfully." 
+        };
     },
     404,
     "User not found.",
