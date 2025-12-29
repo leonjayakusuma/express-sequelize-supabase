@@ -10,9 +10,45 @@ const app = express()
 // Middleware
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(cors())
+
+// Configure CORS to allow requests from Vercel domains and localhost
+const corsOptions = {
+  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+    // Allow requests with no origin (like mobile apps, Postman, or same-origin requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost for development
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+    
+    // Allow all Vercel domains (preview and production)
+    if (origin.includes('.vercel.app') || origin.includes('vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // Allow custom domains if needed
+    // Add your custom domain here if you have one
+    // if (origin.includes('yourdomain.com')) {
+    //   return callback(null, true);
+    // }
+    
+    callback(null, true); // Allow all origins for now - adjust as needed
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key', 'X-Requested-With'],
+  exposedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions))
 // API key auth middleware (to be used only on protected route groups, e.g. `/api`)
 const apiAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  // Allow OPTIONS requests (CORS preflight) to pass through
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+
   if (!config.apiKey) {
     return res.status(500).json({
       success: false,
