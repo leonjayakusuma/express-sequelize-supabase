@@ -50,15 +50,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.error('Handler error:', error);
     
     // Set CORS headers even on handler errors
-    const origin = req.headers.origin;
-    if (origin) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-    } else {
-      res.setHeader('Access-Control-Allow-Origin', '*');
-    }
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key, X-Requested-With');
+    // const origin = req.headers.origin;
+    // if (origin) {
+    //   res.setHeader('Access-Control-Allow-Origin', origin);
+    //   res.setHeader('Access-Control-Allow-Credentials', 'true');
+    // } else {
+    //   res.setHeader('Access-Control-Allow-Origin', '*');
+    // }
+    // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    // res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key, X-Requested-With');
     
     res.status(500).json({ 
       error: 'Internal server error',
