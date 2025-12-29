@@ -1,5 +1,4 @@
 import express, { NextFunction, Request, Response } from 'express'
-import cors from 'cors'
 import { router } from './routes/routes'
 import { protectedRouter } from './routes/protectedroutes'
 import docsRouter from './routes/docs'
@@ -11,71 +10,28 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// Configure CORS to allow requests from Vercel domains and localhost
-const corsOptions: cors.CorsOptions = {
-  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-    // Allow requests with no origin (like mobile apps, Postman, or same-origin requests)
-    if (!origin) return callback(null, true);
-    
-    // Allow localhost for development
-    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      return callback(null, true);
-    }
-    
-    // Allow all Vercel domains (preview and production)
-    if (origin.includes('.vercel.app') || origin.includes('vercel.app')) {
-      return callback(null, true);
-    }
-    
-    // Allow custom domains if needed
-    // Add your custom domain here if you have one
-    // if (origin.includes('yourdomain.com')) {
-    //   return callback(null, true);
-    // }
-    
-    callback(null, true); // Allow all origins for now - adjust as needed
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key', 'X-Requested-With'],
-  exposedHeaders: ['Content-Type', 'Authorization'],
-  preflightContinue: false, // Let CORS middleware handle preflight
-  optionsSuccessStatus: 200, // Some legacy browsers (IE11) choke on 204
-};
-
-// Apply CORS middleware
-app.use(cors(corsOptions))
-
-// Additional CORS headers middleware to ensure headers are always set
-// This is a backup in case the cors() middleware doesn't catch everything
+// CORS middleware - handle all CORS headers manually for better control
+// This MUST be before any routes to ensure headers are set on all responses
 app.use((req: Request, res: Response, next: NextFunction): void => {
   const origin = req.headers.origin;
   
-  // Set CORS headers on all responses
+  // Set CORS headers - always allow the requesting origin
+  // Note: When credentials: true, we must use the specific origin, not '*'
   if (origin) {
-    // Check if origin should be allowed
-    const isAllowed = 
-      origin.includes('localhost') || 
-      origin.includes('127.0.0.1') || 
-      origin.includes('.vercel.app') || 
-      origin.includes('vercel.app');
-    
-    if (isAllowed) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-    }
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+  } else {
+    // No origin header (e.g., Postman, curl, same-origin) - don't set credentials
+    res.header('Access-Control-Allow-Origin', '*');
   }
-  // Note: When credentials: true, we can't use '*' for origin
-  // If no origin, the cors() middleware will handle it
   
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key, X-Requested-With');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key, X-Requested-With');
+  res.header('Access-Control-Max-Age', '86400'); // 24 hours
   
-  // Handle OPTIONS requests (CORS preflight)
+  // Handle OPTIONS requests (CORS preflight) - must return early
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
   
   next();
