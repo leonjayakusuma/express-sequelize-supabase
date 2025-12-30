@@ -7,7 +7,7 @@ import { ItemTable } from "../models/item.model";
 import { TagTable } from "../models/tag.model";
 import { ItemTagTable } from "../models/itemTag.model";
 import sequelize from "../config/database";
-import { QueryTypes, Op } from "sequelize";
+import { Op } from "sequelize";
 import { IngredientTable } from "../models/ingredient.model";
 import { RecipeTable } from "../models/recipe.model";
 import { Recipe } from "../shared/types";
